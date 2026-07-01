@@ -18,8 +18,6 @@ Routing signals — these apply ONLY when `google_app_engine_application` is in 
 
 These signals do NOT apply to Cloud Run resources. Cloud Run maps to Fargate unconditionally via fast-path.
 
-**Future (not yet implemented in Discover phase):** Heroku `Procfile`, Render `render.yaml`, or Railway config detected in app code. When Discover adds PaaS file detection, these will auto-set `compute_model: "managed_platform"` and add a synthetic App Engine-equivalent entry to the inventory.
-
 ## NOT the Right Choice
 
 - User explicitly wants serverless/Lambda (event-driven functions, stateless, cold starts) → use Lambda
