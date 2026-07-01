@@ -4,7 +4,7 @@
 # Contains resources that trigger known "do not recommend" rules:
 #   - Firebase Auth → must NOT map to Cognito (keep existing auth)
 #   - BigQuery → must NOT map to Redshift/Athena/Glue/EMR (deferred only)
-#   - Cloud Run → must NOT map to Lightsail or Elastic Beanstalk
+#   - Cloud Run → must NOT map to Lightsail
 #
 # Resources:
 #   PRIMARY:   google_cloud_run_v2_service, google_bigquery_dataset
@@ -68,7 +68,7 @@ resource "google_bigquery_table" "users" {
   ])
 }
 
-# --- Cloud Run (should map to Fargate, never Lightsail/Beanstalk) ---
+# --- Cloud Run (should map to Fargate, never Lightsail) ---
 
 resource "google_cloud_run_v2_service" "api" {
   name     = "api-service"

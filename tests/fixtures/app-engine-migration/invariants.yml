@@ -1,0 +1,39 @@
+fixture: app-engine-migration
+
+hard_invariants:
+
+  # === Structural ===
+
+  - id: H1
+    description: ".phase-status.json exists after run completes"
+    source: "SKILL.md:82-106"
+    check:
+      type: file_exists
+      file: .phase-status.json
+
+  - id: H7
+    description: "gcp-resource-inventory.json exists after run completes"
+    source: "discover-iac.md:241-274"
+    check:
+      type: file_exists
+      file: gcp-resource-inventory.json
+
+  # === Elastic Beanstalk Mapping ===
+
+  - id: EB1
+    description: "App Engine maps to Elastic Beanstalk in Design output"
+    source: "fast-path.md"
+    check:
+      type: custom
+      handler: "tools/invariants/eb1_app_engine_maps_to_eb.py"
+
+  # === Standard mappings still hold ===
+
+  - id: H20
+    description: "No null values in aws-design.json resources"
+    source: "design-infra.md"
+    check:
+      type: custom
+      handler: "tools/invariants/h20_no_nulls.py"
+
+soft_observations: []

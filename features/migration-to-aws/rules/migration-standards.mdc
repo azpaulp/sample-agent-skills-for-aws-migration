@@ -5,7 +5,7 @@ alwaysApply: true
 
 migration-standards:
 
-- Re-platform by default: select AWS services that match GCP workload types (Cloud Run to Fargate, Cloud SQL to RDS).
+- Re-platform by default: select AWS services that match GCP workload types (Cloud Run to Fargate, App Engine to Elastic Beanstalk, Cloud SQL to RDS).
 - Default to development-tier sizing unless production is explicitly specified.
 - Always estimate costs before generating infrastructure code.
 - Use Terraform as the default IaC tool for migration artifacts.

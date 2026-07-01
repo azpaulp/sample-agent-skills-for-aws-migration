@@ -53,19 +53,22 @@ JSON artifacts **must** keep the `confidence` string values above. When speaking
 | `google_secret_manager_secret`              | Secrets Manager       | Always     | Create secret metadata and IAM-scoped access         |
 | `google_secret_manager_secret_version`      | Secrets Manager       | Always     | Carry current value or explicit migration TODO       |
 | `google_redis_instance`                     | ElastiCache Redis     | Always     | 1:1 mapping; preserve cluster mode and node type     |
+| `google_app_engine_application`             | Elastic Beanstalk     | `compute_model` absent or `"managed_platform"` | PaaS-to-PaaS; detect runtime from app.yaml. If `compute_model: "container_orchestration"` or `"serverless"`, use rubric in `compute.md` (confidence: `inferred`). |
 
 ## Skip Mappings Table
 
 These GCP resources do **not** require AWS equivalents in v1.0:
 
-| GCP Service                  | Reason                                                                                |
-| ---------------------------- | ------------------------------------------------------------------------------------- |
-| `google_project`             | AWS account structure (manual, not IaC)                                               |
-| `google_monitoring_*`        | Fallback to CloudWatch (managed)                                                      |
-| `google_logging_*`           | Fallback to CloudWatch Logs (managed)                                                 |
-| `google_compute_address`     | Elastic IPs managed by ALB/NAT (not standalone)                                       |
-| `google_identity_platform_*` | Auth provider — keep existing solution, do not migrate to AWS Cognito or any AWS auth |
-| `google_firebase_auth_*`     | Auth provider — keep existing solution, do not migrate to AWS Cognito or any AWS auth |
+| GCP Service                             | Reason                                                                                |
+| --------------------------------------- | ------------------------------------------------------------------------------------- |
+| `google_project`                        | AWS account structure (manual, not IaC)                                               |
+| `google_monitoring_*`                   | Fallback to CloudWatch (managed)                                                      |
+| `google_logging_*`                      | Fallback to CloudWatch Logs (managed)                                                 |
+| `google_compute_address`                | Elastic IPs managed by ALB/NAT (not standalone)                                       |
+| `google_identity_platform_*`            | Auth provider — keep existing solution, do not migrate to AWS Cognito or any AWS auth |
+| `google_firebase_auth_*`                | Auth provider — keep existing solution, do not migrate to AWS Cognito or any AWS auth |
+| `google_app_engine_standard_app_version` | Configuration of parent `google_app_engine_application`; no separate AWS resource     |
+| `google_app_engine_flexible_app_version` | Configuration of parent `google_app_engine_application`; no separate AWS resource     |
 
 ## Preferred AWS Target Services
 
@@ -74,9 +77,12 @@ For the workload categories below, always steer toward the **preferred** AWS ser
 | Workload Category       | Preferred AWS Target                                         | Rationale                                                                                  |
 | ----------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
 | Containerized workloads | Fargate (default), Lambda (event-driven), EKS (K8s required) | Deeper integration with VPC, ALB, IAM, and auto-scaling than lighter-weight alternatives   |
+| PaaS / managed platform | Elastic Beanstalk (when `compute_model: "managed_platform"` or App Engine source) | Preserves managed platform model; AWS manages deployments, scaling, patching, monitoring |
 | Third-party auth in use | Keep existing auth provider                                  | Startups using Auth0, Firebase Auth, Clerk, etc. should preserve their existing investment |
 
 **Enforcement:** Check every resource mapping against this table before writing to `aws-design.json` or `aws-design-billing.json`. If a mapping would select a non-preferred service, substitute the preferred alternative.
+
+**Precedence:** Match resources to the **first applicable row**. Cloud Run matches "Containerized workloads" regardless of `compute_model`. The "PaaS / managed platform" row applies only to App Engine resources and resources that reached Pass 2 without matching a prior row.
 
 ## Secondary Behavior Lookups
 

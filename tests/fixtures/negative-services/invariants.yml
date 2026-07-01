@@ -43,12 +43,12 @@ hard_invariants:
       type: custom
       handler: "tools/invariants/neg3_no_lightsail.py"
 
-  - id: NEG4
-    description: "No Elastic Beanstalk in Design output"
-    source: "fast-path.md"
+  - id: EB2
+    description: "Cloud Run without managed_platform preference does NOT map to Elastic Beanstalk"
+    source: "compute.md"
     check:
       type: custom
-      handler: "tools/invariants/neg4_no_beanstalk.py"
+      handler: "tools/invariants/eb2_cloud_run_not_eb_by_default.py"
 
   # === BigQuery Gate (same as bigquery-specialist-gate) ===
 
