@@ -121,7 +121,7 @@ Record extracted values. Questions whose answers are fully determined by extract
 
 1. Category A is always active.
 2. Check for billing-only mode — if `billing-profile.json` exists and `gcp-resource-inventory.json` does NOT, Category B is active.
-3. Check for compute resources — if present, Category C is active. Within C, skip Q7b if no App Engine present. Skip Q8 if no GKE present. Skip Q10/Q11 if no Cloud Run present.
+3. Check for compute resources — if present, Category C is active. Within C, skip Q7b if no App Engine present AND no `paas_platform_detected` in discovery metadata. Skip Q8 if no GKE present. Skip Q10/Q11 if no Cloud Run present.
 4. Check for database resources — if present, Category D is active.
 5. Category E is disabled by default. Offered after the last batch completes in Step 4 (see **Category E Opt-In** in Step 4). If user declines or does not respond, apply Category E defaults (no HA upgrades, no right-sizing).
 6. Check for `ai-workload-profile.json` — if present, Category F is active.
@@ -446,7 +446,7 @@ After writing `preferences.json`, delete `$MIGRATION_DIR/preferences-draft.json`
 | Q5 — Multi-cloud        | B (AWS-only)         | no constraint                                     |
 | Q6 — Uptime             | B (significant)      | `availability: "multi-az"`                        |
 | Q7 — Maintenance        | D (flexible)         | `cutover_strategy: "flexible"`                    |
-| Q7b — Compute model     | A (managed platform)  | `compute_model: "managed_platform"` (App Engine only; skipped if no App Engine) |
+| Q7b — Compute model     | A (managed platform)  | `compute_model: "managed_platform"` (fires for App Engine or Heroku/Render/Railway) |
 | Q8 — K8s sentiment      | B (neutral)          | `kubernetes: "eks-or-ecs"`                        |
 | Q9 — WebSocket          | B (no)               | no constraint                                     |
 | Q10 — Cloud Run traffic | C (24/7)             | `cloud_run_traffic_pattern: "constant-24-7"`      |

@@ -61,8 +61,8 @@ Glob for: `**/*.tf`, `**/*.tfvars`, `**/*.tfstate`, `**/.terraform.lock.hcl`
 - If found → Load `references/phases/discover/discover-iac.md`
 - If not found → Skip. Log: "No Terraform files found — skipping IaC discovery."
 
-**1b. Check for source code / dependency manifests:**
-Glob for: `**/*.py`, `**/*.js`, `**/*.ts`, `**/*.jsx`, `**/*.tsx`, `**/*.go`, `**/*.java`, `**/*.scala`, `**/*.kt`, `**/*.rs`, `**/requirements.txt`, `**/setup.py`, `**/pyproject.toml`, `**/Pipfile`, `**/package.json`, `**/go.mod`, `**/pom.xml`, `**/build.gradle`
+**1b. Check for source code / dependency manifests / PaaS config:**
+Glob for: `**/*.py`, `**/*.js`, `**/*.ts`, `**/*.jsx`, `**/*.tsx`, `**/*.go`, `**/*.java`, `**/*.scala`, `**/*.kt`, `**/*.rs`, `**/requirements.txt`, `**/setup.py`, `**/pyproject.toml`, `**/Pipfile`, `**/package.json`, `**/go.mod`, `**/pom.xml`, `**/build.gradle`, `**/Procfile`, `**/render.yaml`, `**/railway.json`, `**/railway.toml`
 
 - If found → Load `references/phases/discover/discover-app-code.md`
 - If not found → Skip. Log: "No source code found — skipping app code discovery."

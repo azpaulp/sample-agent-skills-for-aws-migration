@@ -1,6 +1,6 @@
 # Elastic Beanstalk Design Reference
 
-**Applies to:** Google App Engine (Standard/Flexible)
+**Applies to:** Google App Engine (Standard/Flexible), Heroku migrations (Procfile detected)
 
 ## Key Distinction
 
@@ -10,15 +10,16 @@
 
 ## When to Use
 
-Routing signals — these apply ONLY when `google_app_engine_application` is in the inventory (any match is sufficient):
+Routing signals — these apply when `google_app_engine_application` is in the inventory OR `paas_platform_detected` is set in discovery metadata (any match is sufficient):
 
 - `google_app_engine_application` detected in Terraform (strongest PaaS-to-PaaS signal)
+- Heroku `Procfile` detected in project (PaaS migration signal — sets `paas_platform_detected`)
 - User answers `compute_model: "managed_platform"` in Clarify (Q7b)
-- User explicitly requests "managed platform" or "Elastic Beanstalk" for their App Engine workloads
+- User explicitly requests "managed platform" or "Elastic Beanstalk" for their workloads
 
 These signals do NOT apply to Cloud Run resources. Cloud Run maps to Fargate unconditionally via fast-path.
 
-**Future (not yet implemented in Discover phase):** Heroku `Procfile`, Render `render.yaml`, or Railway config detected in app code. When Discover adds PaaS file detection, these will auto-set `compute_model: "managed_platform"` and add a synthetic App Engine-equivalent entry to the inventory.
+**Future:** Render `render.yaml` and Railway `railway.json`/`railway.toml` detection is implemented in Discover (Step 0.7) but not yet validated end-to-end. Heroku `Procfile` is the primary supported PaaS detection path.
 
 ## NOT the Right Choice
 
@@ -106,6 +107,29 @@ Detect from app source to select EB platform automatically:
 | Task queues                    | EB worker + SQS                            |
 | `instance_class` (F1/F2/F4)   | Instance type selection (t3.small/medium)  |
 | Automatic scaling min/max      | EB auto-scaling min/max instances          |
+
+## Heroku to EB Mapping
+
+| Heroku Feature                | EB Equivalent                              |
+| ----------------------------- | ------------------------------------------ |
+| `Procfile` (web)              | EB web server environment                  |
+| `Procfile` (worker)           | EB worker environment + SQS                |
+| Config Vars                   | EB environment properties                  |
+| Heroku Scheduler              | EB worker + EventBridge scheduled events   |
+| Heroku Postgres               | RDS Aurora PostgreSQL (separate resource)  |
+| Heroku Redis                  | ElastiCache Redis (separate resource)      |
+| Buildpacks                    | EB platform auto-detection (see Platform Detection Rules) |
+| `runtime.txt` (Python version) | EB Python platform version                |
+| `system.properties` (Java)    | EB Java Corretto platform version         |
+| Dyno type (Standard-1X/2X)   | Instance type selection (t3.small/medium)  |
+| Dyno auto-scaling             | EB auto-scaling min/max instances         |
+| PORT env var                  | EB port 5000 default (set PORT=5000 or configure) |
+
+**Key differences from Heroku:**
+- EB requires explicit VPC configuration (Heroku abstracts networking entirely)
+- EB deployment is slower than Heroku git push (~2-5 min vs ~30s)
+- EB uses IAM roles instead of Heroku's team/org permissions
+- Heroku add-ons become separate AWS resources (RDS, ElastiCache, SQS, etc.)
 
 ## Sizing Defaults
 

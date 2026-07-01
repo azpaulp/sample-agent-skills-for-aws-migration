@@ -35,17 +35,17 @@ _Fire when:_ Compute resources present (Cloud Run, Cloud Functions, GKE, GCE, Ap
 
 ---
 
-## Q7b — What compute operational model do you prefer for your App Engine workloads?
+## Q7b — What compute operational model do you prefer for your managed platform workloads?
 
-_Fire when:_ App Engine present in inventory (`google_app_engine_application`). Skip when: no App Engine in inventory.
+_Fire when:_ App Engine present in inventory (`google_app_engine_application`) OR `paas_platform_detected` is set in discovery metadata (Heroku/Render/Railway Procfile found). Skip when: neither condition met.
 
-**Rationale:** GCP App Engine is a PaaS that can map to different AWS compute targets depending on whether the user wants to preserve the managed platform model (Elastic Beanstalk), switch to direct container control (Fargate/ECS), or go serverless (Lambda). This drives the fundamental routing decision for App Engine resources.
+**Rationale:** App Engine and Heroku/Render/Railway are PaaS platforms that can map to different AWS compute targets depending on whether the user wants to preserve the managed platform model (Elastic Beanstalk), switch to direct container control (Fargate/ECS), or go serverless (Lambda). This drives the fundamental routing decision for these workloads.
 
 Note: This question does NOT affect Cloud Run resources. Cloud Run maps to Fargate via its own deterministic fast-path regardless of this answer.
 
-> Your App Engine setup uses a managed platform (you provide code, Google manages everything else). On AWS, you have a few options for these workloads:
+> Your current setup uses a managed platform ([App Engine / Heroku / Render / Railway — name the one detected]). On AWS, you have a few options for these workloads:
 >
-> A) Managed platform — I provide code, AWS manages everything else (like App Engine today)
+> A) Managed platform — I provide code, AWS manages everything else (like [detected platform] today)
 > B) Container orchestration — I want direct control over containers and scaling
 > C) Serverless — Event-driven functions, scale-to-zero, stateless
 > D) I don't know — recommend the best fit
@@ -55,7 +55,7 @@ Note: This question does NOT affect Cloud Run resources. Cloud Run maps to Farga
 | Managed platform    | Elastic Beanstalk — preserves PaaS model, AWS manages deployments/scaling/patching        |
 | Container control   | ECS Fargate — direct container management with full VPC/ALB/IAM integration               |
 | Serverless          | Lambda — event-driven, stateless functions with scale-to-zero                             |
-| I don't know        | Default: Elastic Beanstalk (PaaS-to-PaaS, closest match to App Engine)                   |
+| I don't know        | Default: Elastic Beanstalk (PaaS-to-PaaS, closest match to managed platforms)            |
 
 Interpret:
 
@@ -66,7 +66,7 @@ C -> compute_model: "serverless" — Lambda recommended
 D -> same as default (A)
 ```
 
-**Default:** **A** (`compute_model: "managed_platform"`). App Engine is PaaS; Elastic Beanstalk is the closest AWS equivalent. Users who skip or say "I don't know" get the PaaS-to-PaaS path.
+**Default:** **A** (`compute_model: "managed_platform"`). Managed platforms (App Engine, Heroku, Render, Railway) map naturally to Elastic Beanstalk. Users who skip or say "I don't know" get the PaaS-to-PaaS path.
 
 ---
 

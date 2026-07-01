@@ -52,6 +52,39 @@ If any auth SDK import is detected:
 2. Do **not** infer a GCP resource or recommend an AWS replacement
 3. Do **not** include in the AI signal scan or any output artifact
 
+## Step 0.7: PaaS Platform Detection
+
+Scan the project root for PaaS platform configuration files that indicate the application currently runs on a managed platform (Heroku, Render, Railway). These are relevant for migration routing — a PaaS-native app maps naturally to Elastic Beanstalk on AWS.
+
+| File | Platform | Notes |
+| ---- | -------- | ----- |
+| `Procfile` | Heroku | Defines process types (web, worker). Strongest PaaS signal. |
+| `app.json` (with `"name"` + `"formation"` or `"buildpacks"`) | Heroku | App manifest; confirms Heroku if structure matches. |
+| `render.yaml` | Render | Infrastructure-as-code for Render. |
+| `railway.json` or `railway.toml` | Railway | Railway configuration. |
+
+**If ANY PaaS platform file is detected:**
+
+1. Record in the discovery output metadata:
+   ```json
+   {
+     "paas_platform_detected": {
+       "platform": "heroku",
+       "file": "Procfile",
+       "process_types": ["web", "worker"]
+     }
+   }
+   ```
+   For Heroku `Procfile`: parse process type names (lines before the colon, e.g., `web`, `worker`, `release`).
+
+2. This signal is consumed by the Clarify phase (Q7b) to set the default to `compute_model: "managed_platform"` even when no App Engine Terraform resource exists.
+
+3. Do NOT infer a GCP resource from this detection — the app may be migrating from Heroku directly to AWS (not via GCP). Continue to Step 1 for GCP-specific detection.
+
+**If NO PaaS platform file detected:** Continue to Step 1. No metadata recorded.
+
+---
+
 ## Step 1: Detect GCP SDK Imports
 
 Scan source files for GCP service imports:
