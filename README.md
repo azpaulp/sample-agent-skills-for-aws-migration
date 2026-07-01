@@ -64,7 +64,7 @@ Point this plugin at your codebase, Terraform files, or GCP billing data. It run
 
 | Category | Examples |
 |----------|----------|
-| Infrastructure | Cloud Run, Cloud SQL, GKE, Cloud Functions, App Engine, Heroku (Procfile), Pub/Sub, Cloud Storage, VPC, DNS |
+| Infrastructure | Cloud Run, Cloud SQL, GKE, Cloud Functions, App Engine, Pub/Sub, Cloud Storage, VPC, DNS |
 | AI Models | OpenAI (GPT-4o, GPT-5.4, o-series, embeddings, image, speech), Gemini (Pro, Flash), Anthropic, Cohere |
 | Agentic Frameworks | LangGraph, CrewAI, AutoGen, OpenAI Agents SDK, Strands, custom agent loops |
 | Integration Patterns | Direct SDK, LangChain, LlamaIndex, LiteLLM, OpenRouter, MCP servers |
