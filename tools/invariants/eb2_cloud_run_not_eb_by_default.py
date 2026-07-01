@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""EB2: Cloud Run without managed_platform preference does NOT map to EB.
+"""EB2: Cloud Run must NEVER map to Elastic Beanstalk.
 
 Invariant
 ---------
-When google_cloud_run_service or google_cloud_run_v2_service is present
-and the user has NOT explicitly set compute_model to "managed_platform",
-the resource must NOT map to Elastic Beanstalk. Cloud Run's default
-target remains Fargate (per fast-path.md Direct Mappings).
+When google_cloud_run_service or google_cloud_run_v2_service is present,
+it must NOT map to Elastic Beanstalk regardless of compute_model preference.
+Cloud Run maps to Fargate unconditionally via fast-path ("Always").
+The compute_model preference only affects App Engine resources.
 
 Skill file reference
 --------------------
@@ -14,16 +14,15 @@ Skill file reference
     google_cloud_run_service → Fargate (Always)
     google_cloud_run_v2_service → Fargate (Always)
 
-  design-refs/compute.md (Signals)
-    Managed platform preference (compute_model: "managed_platform") →
-    Elastic Beanstalk. Without this preference, Cloud Run stays on Fargate.
+  design-refs/compute.md (Cloud Run section)
+    "Cloud Run maps to Fargate via deterministic fast-path ('Always').
+     The compute_model preference does not affect Cloud Run mapping."
 
 Examples
 --------
-  PASS: Cloud Run maps to "Fargate" with no managed_platform preference.
+  PASS: Cloud Run maps to "Fargate" (any preference state).
 
-  FAIL: Cloud Run maps to "Elastic Beanstalk" without the user having
-        explicitly requested a managed platform.
+  FAIL: Cloud Run maps to "Elastic Beanstalk" (any preference state).
 """
 
 import json
@@ -34,25 +33,9 @@ from pathlib import Path
 def main():
     migration_dir = Path(sys.argv[1])
     design_file = migration_dir / "aws-design.json"
-    prefs_file = migration_dir / "preferences.json"
 
     if not design_file.exists():
         print(json.dumps({"status": "fail", "details": "aws-design.json not found"}))
-        return
-
-    has_managed_platform_pref = False
-    if prefs_file.exists():
-        prefs = json.loads(prefs_file.read_text(encoding="utf-8"))
-        compute_model = (
-            prefs.get("design_constraints", {})
-            .get("compute_model", {})
-            .get("value", "")
-        )
-        if compute_model == "managed_platform":
-            has_managed_platform_pref = True
-
-    if has_managed_platform_pref:
-        print(json.dumps({"status": "pass", "details": "User chose managed_platform; EB is valid"}))
         return
 
     data = json.loads(design_file.read_text(encoding="utf-8"))
@@ -66,7 +49,7 @@ def main():
                 if "beanstalk" in aws_service:
                     violations.append(
                         f"{resource.get('gcp_address')}: Cloud Run mapped to "
-                        f"'{resource.get('aws_service')}' without managed_platform preference"
+                        f"'{resource.get('aws_service')}' (must always be Fargate)"
                     )
 
     if violations:
